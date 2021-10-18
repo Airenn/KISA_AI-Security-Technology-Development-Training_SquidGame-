@@ -1,5 +1,5 @@
 import os
-import pefile # pip install pefile
+import pefile
 import subprocess
 import timeit
 from multiprocessing import Process, Queue
@@ -106,7 +106,7 @@ def EXE_TO_IDB(q, ):
         FILE_PATH = q.get()
         try:
             pe_flag = CHECK__PE(FILE_PATH)
-            print(f'{FILE_PATH}')
+            # print(f'{FILE_PATH}')
             if pe_flag != PE_CHECK_ERROR:
                 p = EXECUTE_IDAT(FILE_PATH, pe_flag)
 
