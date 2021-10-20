@@ -56,6 +56,7 @@ def SEARCH_FUNC():
             fs = executor.submit(GET_BASICBLOCK_INFO, q_jobs.get())
             complete_workers.append(fs)
 
+        opcodes_all = ''
         for future in futures.as_completed(complete_workers):
             res = future.result(timeout=50)
             # pprint.pprint(res)
@@ -63,8 +64,10 @@ def SEARCH_FUNC():
                 continue
             else:
                 loc = list(res.keys())[0]
+                opcodes_all = opcodes_all + (list(res[loc].values())[0]["opcodes"] + ' ')
                 bb_Info[filename][loc] = res[loc]
-
+        bb_Info[filename]['opcodes_all'] = opcodes_all
+        del opcodes_all
     return bb_Info
 
 
@@ -86,8 +89,8 @@ def GET_BASICBLOCK_INFO(fva):
 
         # #최소 바이트 50이상일 때 추출
         # #해당 조건 활성 시 평균 3~40% 이상 시간 단축 가능
-        # if (baiscblock.endEA - baiscblock.startEA) < 35:
-        #     continue
+        if (baiscblock.endEA - baiscblock.startEA) < 35:
+            continue
 
         try:
             while curaddr < endaddr:
@@ -102,7 +105,7 @@ def GET_BASICBLOCK_INFO(fva):
             print(f"[ERROR] {e}")
             continue
 
-        # 중복 값 제어
+        # # 중복 값 제어
         # mutex_opcode = ' '.join(opcodes)
         # if mutex_opcode in mutex_opcode_list:
         #     continue
