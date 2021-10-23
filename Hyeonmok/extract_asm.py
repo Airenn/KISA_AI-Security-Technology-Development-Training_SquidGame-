@@ -73,8 +73,7 @@ def SEARCH_FUNC():
 
 def GET_BASICBLOCK_INFO(fva):
 
-    function_block = list()
-    mutex_opcode_list = list()
+    # mutex_opcode_list = list()
 
     _function = api.ida_funcs.get_func(fva)
     flowchart = api.idaapi.FlowChart(_function)
@@ -85,7 +84,7 @@ def GET_BASICBLOCK_INFO(fva):
         curaddr = baiscblock.startEA
         endaddr = baiscblock.endEA
         opcodes = list()
-        #disasms = list()
+        # disasms = list()
 
         # #최소 바이트 50이상일 때 추출
         # #해당 조건 활성 시 평균 3~40% 이상 시간 단축 가능
@@ -94,12 +93,12 @@ def GET_BASICBLOCK_INFO(fva):
 
         try:
             while curaddr < endaddr:
-                #opcode = api.idc.GetMnem(curaddr)
+                # opcode = api.idc.GetMnem(curaddr)
                 disasm = api.idc.GetDisasm(curaddr)
                 cutNumber = disasm.find('\t')
                 opcode = disasm[:cutNumber]
                 opcodes.append(opcode)
-                #disasms.append(disasm)
+                # disasms.append(disasm)
                 curaddr = api.idc.NextHead(curaddr)
         except Exception as e:
             print(f"[ERROR] {e}")
@@ -114,9 +113,18 @@ def GET_BASICBLOCK_INFO(fva):
 
         # function_name = api.idc.GetFunctionName(fva).upper()
         basic_blocK_opcode_all = ' '.join(opcodes)
-        tempdict[hex(curaddr)] = {"opcodes": basic_blocK_opcode_all}
 
-        del opcodes
+        # opcodes_N_GRAM
+        temp = basic_blocK_opcode_all.split(' ')
+        op_gram = list()
+        for i in range(len(temp)):
+            if i < len(temp)-1:
+                op_gram.append(temp[i] +' '+ temp[i+1])
+
+        tempdict[hex(curaddr)] = {"opcodes": basic_blocK_opcode_all,
+                                  "OP-GRAM": op_gram}
+        # print(f'[DEBUG] {op_gram}')
+        del opcodes, op_gram
         extract_result[api.idc.GetFunctionName(fva).upper()] = tempdict
     # print(f'{tempdict.keys()} ==== {len(tempdict.keys())}') # basic block count
 
@@ -141,6 +149,6 @@ def SAVE_JSON(data):
 if __name__ == "__main__":
 
     s = timeit.default_timer()  # start time
-    data = extraction_IDB(conf.IDB_PATH + "8feaeac33e79a552e1b7254bae79306d98fed0f9a5e7ecb5119389d959c09d9a.idb") # 가능 11 ([ERROR] failed to disassemble 0x407912)
-    # SAVE_JSON(data)
+    extraction_IDB(conf.IDB_PATH + "8feaeac33e79a552e1b7254bae79306d98fed0f9a5e7ecb5119389d959c09d9a.idb") # 가능 11 ([ERROR] failed to disassemble 0x407912)
+    #SAVE_JSON(data)
     print(f"[INFO] Total running time : {timeit.default_timer() - s}")  # end time
